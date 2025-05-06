@@ -1,0 +1,41 @@
+---
+title: "projet"
+author: "groupe 5"
+date: "`r Sys.Date()`"
+output: html_document
+---
+
+```{r setup}
+knitr::opts_chunk$set(echo = TRUE)
+```
+```{r importation-librairies, echo=FALSE, include=FALSE}
+library(tidyverse)
+library(ggplot2)
+
+```
+
+```{r  importation-base-donnee}
+house <- read.csv("data/kc_house_data.csv")
+head(house)
+
+```
+
+## Description des données
+
+Le jeu de données contient les prix de vente des maisons dans une compté de la ville de Seattle aux USA. ces maisons ont été vendues entre mai 2014 et mai 2015.
+
+Tirées sur Kagle https://www.kaggle.com/datasets/harlfoxem/housesalesprediction
+
+licence : CC0: Public Domain
+
+Le jeu a 21613 enregistrement et 21 variables.
+
+Bien que le set se fait un peu vieux, il reste d’actualité et vivement apprécié, compte tenu de ses 8789 vues et ses 2399 teléchargement (y compris le notre) durant les 30 derniers jours.
+
+```{r glimpse}
+glimpse(house)
+```
+
+
+
+
