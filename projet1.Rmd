@@ -22,7 +22,7 @@ head(house)
 
 ## Description des données
 
-Le jeu de données contient les prix de vente des maisons dans une compté de la ville de Seattle aux USA. ces maisons ont été vendues entre mai 2014 et mai 2015.
+Le jeu de données contient les prix de ventes des maisons dans une compté de la ville de Seattle aux USA. ces maisons ont été vendues entre mai 2014 et mai 2015.
 
 Tirées sur Kagle https://www.kaggle.com/datasets/harlfoxem/housesalesprediction
 
