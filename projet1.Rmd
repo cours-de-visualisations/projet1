@@ -1,16 +1,16 @@
 ---
 title: "projet"
-author: "groupe 5"
+author: "groupe 5 (Wilson FOTSING, Laurent Fabrice NGWE, Gladisse Diane KOUMBO)"
 date: "`r Sys.Date()`"
 output: html_document
 ---
 
-```{r setup}
-knitr::opts_chunk$set(echo = TRUE)
-```
+
 ```{r importation-librairies, echo=FALSE, include=FALSE}
+#install.packages("DT")
 library(tidyverse)
 library(ggplot2)
+library(DT)
 
 ```
 
@@ -36,6 +36,154 @@ Bien que le set se fait un peu vieux, il reste d’actualité et vivement appré
 glimpse(house)
 ```
 
+### Description des variables : 
+
+```{r description-variables, echo= FALSE}
+
+  variables = c("id", "date", "price", "bedrooms", "bathrooms", "sqft_living",
+               "sqft_lot", "floors", "waterfront", "view", "condition", "grade",
+               "sqft_above", "sqft_basement", "yr_built", "yr_renovated",
+               "zipcode", "lat", "long", "sqft_living15", "sqft_lot15")
+
+  Description = c(
+    "Identifiant unique de la propriété",
+    "Date de la vente",
+    "Prix de vente de la maison (en dollars)",
+    "Nombre de chambres",
+    "Nombre de salles de bain (ex : 225 = 2 salles + 1 toilette)",
+    "Superficie habitable (en pieds carrés)",
+    "Superficie du terrain (en pieds carrés)",
+    "Nombre d’étages",
+    "Vue sur l’eau (1 = oui, 0 = non)",
+    "Qualité de la vue (0 à 4, 0 = aucune vue particulière)",
+    "État général de la maison (1 = très mauvais, 5 = excellent)",
+    "Qualité de la construction et du design (1 à 13)",
+    "Superficie hors sous-sol",
+    "Superficie du sous-sol",
+    "Année de construction",
+    "Année de rénovation (0 = jamais rénovée)",
+    "Code postal",
+    "Latitude géographique",
+    "Longitude géographique",
+    "Superficie moyenne des maisons voisines (habitables) dans un rayon proche",
+    "Superficie moyenne des terrains voisins"
+  )
+
+description_variables <- data.frame(variables, Description)
+
+# Pour construire ce tableau interactif, je me suis fait aidé par ChatGPT
+
+datatable(description_variables, 
+          options = list(pageLength = 10, autoWidth = TRUE),
+          caption = "Tableau des variables et leurs descriptions")
+
+
+```
 
 
 
+
+## Description du site
+
+Initialement, le visiteur est sur la page d’acceuil présentée précédament, Il a la possibilité de choisir son profil : **acheteur**, **Propriétaire** ou **agent immobilier**.
+
+S'il fait le choix de rester en mode visite (il ne choisit aucun profil), alors, il a la possibilité de naviguer à travers la carte du Compté. La carte quant à elle, est divisée en plusieurs zones géographiques (le nombre de régions n'est pas encore déterminé) séparés par des grilles. 
+
+
+ À mesure qu'il navigue à travers les grilles, si le curseur est dans une grille, ce qui se passe :
+
+* on affiche au dessus du curseur, le nom du quartier où il se trouve (on a les coordonnées géographiques) et le prix moyen des propriétés dans ce quartier.
+
+* Les graphiques G1,G2, G3,G4, D1,D2,D3,D4 se mettent à jour localement lorsqu'on navigue sur la carte.
+
+## Description des graphiques dynamiques :
+
+G1 : Distribution des prix dans la localité selecionnée : (count = f(price)) --> histogramme 
+
+G2 : relation prix ~ surface --> (geom_plot+geom_Smooth) coloré selon view
+
+G3 : Tendance des prix moyens dans le temps --> serie temporelle
+
+G4 : Distribution du nombre de chambres --> Diagramme à bandes
+
+D1 : Nombre de maisons par categories --> diagramme à bandes
+
+D2 : Nombre de maison par grade (Qualité de la construction et du design ) --> diagramme à bandes
+
+D3 : Vue sur l'eau oui ou non (waterfront) --> Diagramme circulaire
+
+D4 : Nombre de maison selon l'état  general (condition) --> diagramme à bandes
+
+Pour résumer, les graphiques de gauche ($G_i$) donnent une idée générale du coût de vie, alors que les graphiques de droite $D_i$ donne une idée générale sur la qualité de vie
+
+* Si le visiteur pense qu'un graphe est trop petit, il a la possibilité de l'agrandir en le mettant en avant plan.
+Il peut par exemple double cliquer sur la zone correspondante pour stopper l'effet dynamique, puis aller cliquer sur le graphe qui l'interesse pour le mettre en avant plan. pour revenir à l'effet dynamique, il doit double cliquer à nouveu n'importe où dans la grille.
+
+
+## Le menu rechercher :
+
+si il connaît le code postal ou le nom du quartier, il peut simplement entrer les informations dans le menu rechercher  el les graphes se mettrons à jour automatiquent.
+
+## Les différents profils : 
+
+### profil acheteur : 
+
+Si il clique dans le case correspondante, un menu deroulant se déploie. Les options sont : 
+
+* localite : En choisissant localité, on lui déroule une liste des localités disponibles. il lui suffira alors de cliquer dessus et il sera redirrigé vers une nouvelle page contenant uniquement les propriétés dans cette localité.
+
+il pourra cliquer sur la propriété qui l'interesse pour voir le contenu (photos,prix,... )
+
+* Tranches des prix : Si il clique dessus, un autre menu déroulant contenant les différentes tranche des prix (tranches de 25000$) apparaît. Il lui suffira de cliquer dessus pour être redirigé vers la page correspondant aux propriétés désirées
+
+* Année de Construction --> idème
+
+ Pour faire court, le comportement précédant sera analogue pour tout ce qui suit
+ 
+ * Nombre de chambres
+ 
+ * Nombre de salles de bain
+ 
+ * Superficie habitable
+ 
+ * Superficie du terrain
+ 
+ * Nombre d’étages
+ 
+ * Vue sur l’eau
+ 
+ * Qualité de la vue  
+ 
+ * État général de la maison
+ 
+ * Qualité de la construction et du design
+ 
+ * 	Année de rénovation
+
+Notons aussi qu'il peut faire sa recherche en rajoutant des filtres.
+
+
+Pour terminer, une fois qu'il a été redirigé sur une page, il pourra toujours retourner vers le site en cliquant sur retour
+
+
+### profil Propriétaire (ou vendeur, pas encore décidé) :
+
+Si il clique dessus, le menu deroulant s'affiche
+
+
+* s'identifier : il doit rentrer ses paramètres de connexion. Si l'identification est réussie, il est redirigé vers la page Vendeur (voir le fichier powerpoint)
+
+* S'il n'est pas inscrit, il pourra s'inscrire, puis s'identifier.
+
+Le site a exactement le même fonctionnement  que pour le profil visiteur, sauf qu'en plus, il peut choisir de : 
+
+* Publier une annonce : il devra alors rentrer les caractéristiques de sa maison en remplissant un formulaire. le formulaire est simple, on lui donne la liste des variables, et il doit compléter.  En plus il a la possibilité de 
+télécharger quelques photos de sa propriété.
+
+Remarque : Dans le formulaire, le pris de la maison sera la dernière case à remplir. On souhaite qu'il entre toutes les informations d'abord ; à partir des informations, on va prédire le prix de sa propriété, qu'il pourra alors accepter ou refuser.
+
+* S'il clique sur Historique de mes ventes, on lui affiche la liste des annonces qu'il a déjà faites. il pourra alors consulter chaque annonce en tant que acheteur (pas le droit de modifier).
+
+* S'il clique sur acheter, le site se comporte exactement comme si il était dans le profil acheteur, à la seule différence qu'il reste connecté.
+
+*Il a aussi l'option paramètre où il pourra changer son mot de passe
