@@ -7,7 +7,7 @@ output: html_document
 
 
 ```{r importation-librairies, echo=FALSE, include=FALSE}
-#install.packages("DT")
+##install.packages("DT")
 library(tidyverse)
 library(ggplot2)
 library(DT)
@@ -33,7 +33,117 @@ Le jeu a 21613 enregistrement et 21 variables.
 Bien que le set se fait un peu vieux, il reste d’actualité et vivement apprécié, compte tenu de ses 8789 vues et ses 2399 teléchargement (y compris le notre) durant les 30 derniers jours.
 
 ```{r glimpse}
-glimpse(house)
+# Graphique G1 : Distribution des prix des maisons
+g1 <- ggplot(house, aes(x = price)) +
+  geom_histogram(fill = "skyblue", color = "black", bins = 50) +
+  labs(
+    title = "G1 : Distribution des prix des maisons",
+    x = "Prix (USD)",
+    y = "Nombre de maisons"
+  ) +
+  theme_minimal() +
+  theme(
+    plot.title = element_text(hjust = 0.5, size = 16, face = "bold"),
+    axis.title = element_text(size = 14),
+    axis.text = element_text(size = 12)
+  )
+
+# Affichage du graphique G1
+print(g1)
+
+
+# Gaphique G2 : Relation Prix ~ Surface avec colorisation par 'view'
+g2 <- ggplot(house, aes(x = sqft_living, y = price, color = factor(view))) +
+  geom_jitter(alpha = 0.5) +
+  geom_smooth(method = "lm", se = FALSE, color = "red") +
+  theme_minimal() +
+  labs(
+    title = "G2 : Relation entre le prix et la superficie habitable",
+    x = "Surface habitable (sqft)",
+    y = "Prix (USD)",
+    color = "Vue (0-4)"
+  ) +
+  theme(
+    plot.title = element_text(hjust = 0.5, size = 16, face = "bold"),
+    axis.title = element_text(size = 14),
+    axis.text = element_text(size = 12)
+  )
+
+# Affichage du graphique G2
+print(g2)
+
+# Graphique D1 : Nombre de maisons par catégorie (nombre de chambres)
+library(dplyr)
+
+# Calcul des pourcentages pour chaque catégorie
+house_summary <- house %>%
+  group_by(bedrooms) %>%
+  summarize(count = n()) %>%
+  mutate(percentage = round((count / sum(count)) * 100, 1)) %>%
+  filter(percentage > 1)  # Exclusion des catégories avec moins de 1%
+
+# Palette de couleurs personnalisée
+couleurs_personnalisees <- c(
+  "#4C72B0", "#DD8452", "#55A868", 
+  "#C44E52", "#8172B2", "#937860", 
+  "#DA8BC3", "#8C8C8C", "#CCB974", 
+  "#64B5CD"
+)
+
+# Graphique D1 avec couleurs personnalisées
+d1 <- ggplot(house_summary, aes(x = factor(bedrooms), y = count, fill = factor(bedrooms))) +
+  geom_bar(stat = "identity", color = "black", width = 0.7) +
+  geom_text(aes(label = paste0(count, " (", percentage, "%)")), 
+            vjust = -0.5, size = 3.5, color = "black") +  # Pourcentages et noms
+  scale_fill_manual(values = couleurs_personnalisees) +
+  theme_minimal() +
+  labs(
+    title = "D1 : Nombre de maisons par catégorie (nombre de chambres)",
+    x = "Nombre de chambres",
+    y = "Nombre de maisons",
+    fill = "Nombre de chambres"
+  ) +
+  theme(
+    plot.title = element_text(hjust = 0.5, size = 16, face = "bold"),
+    axis.text.x = element_text(angle = 45, hjust = 1, size = 12),
+    axis.text.y = element_text(size = 12),
+    legend.position = "none"  # Masquage de la légende pour plus de clarté
+  )
+
+# Affichage du graphique D1
+print(d1)
+
+# Création du Graphique D2 : Nombre de Maisons par Grade (Qualité de la Construction)
+
+# Calcul des pourcentages pour chaque grade
+house_grade_summary <- house %>%
+  group_by(grade) %>%
+  summarize(count = n()) %>%
+  mutate(percentage = round((count / sum(count)) * 100, 1))
+
+# Graphique D2 avec palette automatique
+d2 <- ggplot(house_grade_summary, aes(x = factor(grade), y = count, fill = factor(grade))) +
+  geom_bar(stat = "identity", color = "black", width = 0.7) +
+  geom_text(aes(label = paste0(count, " (", percentage, "%)")), 
+            vjust = -0.5, size = 3.5, color = "black") +  
+  scale_fill_viridis_d(option = "D") +  # Palette automatique
+  theme_minimal() +
+  labs(
+    title = "D2 : Nombre de maisons par grade (Qualité de la construction et du design)",
+    x = "Grade (Qualité de la construction)",
+    y = "Nombre de maisons",
+    fill = "Grade"
+  ) +
+  theme(
+    plot.title = element_text(hjust = 0.5, size = 16, face = "bold"),
+    axis.text.x = element_text(angle = 45, hjust = 1, size = 12),
+    axis.text.y = element_text(size = 12),
+    legend.position = "none"  
+  )
+
+# Affichage du graphique D2
+print(d2)
+
 ```
 
 ### Description des variables : 
