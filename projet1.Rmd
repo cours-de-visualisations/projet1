@@ -16,7 +16,7 @@ library(knitr)
 
 ```
 
-```{r  importation-base-donnee}
+```{r  importation-base-donnee,echo=FALSE}
 house <- read.csv("data/kc_house_data.csv")
 head(house)
 
@@ -34,105 +34,7 @@ Le jeu a 21613 enregistrement et 21 variables.
 
 Bien que le set se fait un peu vieux, il reste d’actualité et vivement apprécié, compte tenu de ses 8789 vues et ses 2399 teléchargement (y compris le notre) durant les 30 derniers jours.
 
-```{r graphes}
 
-g1 <- ggplot(house, aes(x = price/1000)) +
-  geom_histogram(fill = "skyblue", color = "black", bins = 30) +
-  labs(
-    title = "G1 : Distribution des prix des maisons",
-    x = "Prix (en milliers USD)",
-    y = "Nombre de maisons"
-  ) +
-  theme_minimal() +
-  theme(
-    plot.title = element_text(hjust = 0.5, size = 16, face = "bold"),
-    axis.title = element_text(size = 14),
-    axis.text = element_text(size = 12)
-  )
-
-
-print(g1)
-
-
-# Gaphique G2 : Relation Prix ~ Surface avec colorisation par 'view'
-g2 <- ggplot(house, aes(x = sqft_living, y = price/1000, color = factor(view))) +
-  geom_jitter(alpha = 0.5) +
-  geom_smooth(method = "lm", se = FALSE, color = "red") +
-  theme_minimal() +
-  labs(
-    title = "G2 : Relation entre le prix et la superficie habitable",
-    x = "Surface habitable ",
-    y = "Prix (en milliers USD)",
-    color = "Vue (0-4)"
-  ) +
-  theme(
-    plot.title = element_text(hjust = 0.5, size = 16, face = "bold"),
-    axis.title = element_text(size = 14),
-    axis.text = element_text(size = 12)
-  )
-
-print(g2)
-
-
-house_summary <- house %>%
-  group_by(bedrooms) %>%
-  summarize(count = n()) %>%
-  mutate(percentage = round((count / sum(count)) * 100, 1)) %>%
-  filter(percentage > 1)  
-
-
-d1 <- ggplot(house_summary, aes(x = factor(bedrooms), y = count, fill = factor(bedrooms))) +
-  geom_bar(stat = "identity", color = "black", width = 0.7) +
-  geom_text(aes(label = paste0(count, " (", percentage, "%)")), 
-            vjust = -0.5, size = 3.5, color = "black") + 
-  scale_colour_viridis_d() +
-  theme_minimal() +
-  labs(
-    title = "D1 : Nombre de maisons par catégorie (nombre de chambres)",
-    x = "Nombre de chambres",
-    y = "Nombre de maisons",
-    fill = "Nombre de chambres"
-  ) +
-  theme(
-    plot.title = element_text(hjust = 0.5, size = 16, face = "bold"),
-    axis.text.x = element_text(angle = 45, hjust = 1, size = 12),
-    axis.text.y = element_text(size = 12),
-    legend.position = "none"  
-  )
-
-
-print(d1)
-
-
-house_grade_summary <- house %>%
-  group_by(grade) %>%
-  summarize(count = n()) %>%
-  mutate(percentage = round((count / sum(count)) * 100, 1))
-
-
-d2 <- ggplot(house_grade_summary, aes(x = factor(grade), y = count, fill = factor(grade))) +
-  geom_bar(stat = "identity", color = "black", width = 0.7) +
-  geom_text(aes(label = paste0(count, " (", percentage, "%)")), 
-            vjust = -0.5, size = 3.5, color = "black") +  
-  scale_fill_viridis_d(option = "D") +  
-  theme_minimal() +
-  labs(
-    title = "D2 : Nombre de maisons par grade (Qualité de la construction et du design)",
-    x = "Grade (Qualité de la construction)",
-    y = "Nombre de maisons",
-    fill = "Grade"
-  ) +
-  theme(
-    plot.title = element_text(hjust = 0.5, size = 16, face = "bold"),
-    axis.text.x = element_text(angle = 45, hjust = 1, size = 12),
-    axis.text.y = element_text(size = 12),
-    legend.position = "none"  
-  )
-
-
-print(d2)
-
-```
 
 ### Description des variables : 
 
@@ -305,7 +207,74 @@ Remarque : Dans le formulaire, le pris de la maison sera la dernière case à re
 
 ## Les graphiques :
 
-```{r G3}
+
+
+
+```{r G1, echo= FALSE}
+
+g1 <- ggplot(house, aes(x = price/1000)) +
+  geom_histogram(fill = "skyblue", color = "black", bins = 50) +
+  labs(
+    title = "G1 : Distribution des prix des maisons",
+    x = "Prix (en milliers USD)",
+    y = "Nombre de maisons"
+  ) +
+  theme_minimal() +
+  theme(
+    plot.title = element_text(hjust = 0.5, size = 16, face = "bold"),
+    axis.title = element_text(size = 14),
+    axis.text = element_text(size = 12)
+  )
+
+
+print(g1)
+
+
+```
+
+
+
+```{r G2, echo= FALSE}
+
+g2 <- ggplot(house, aes(x = sqft_living, y = price / 1000, color = factor(view))) +
+  geom_jitter(alpha = 0.5) +
+  geom_smooth(method = "lm", se = FALSE, color = "red") +
+  theme_minimal() +
+  labs(
+    title = "G2 : Relation entre le prix et la superficie habitable",
+    x = "Surface habitable",
+    y = "Prix (en milliers USD)",
+    color = "Vue"
+  ) +
+  scale_color_manual(
+    values = c(
+      "0" = "gray50",    
+      "1" = "gold",       
+      "2" = "darkorange", 
+      "3" = "royalblue",  
+      "4" = "forestgreen" 
+    ),
+    labels = c(
+      "aucune vue",
+      "vue faible",
+      "vue moyenne",
+      "bonne vue",
+      "vue excellente"
+    )
+  ) +
+  theme(
+    plot.title = element_text(hjust = 0.5, size = 16, face = "bold"),
+    axis.title = element_text(size = 14),
+    axis.text = element_text(size = 12)
+  )
+
+print(g2)
+
+```
+
+
+
+```{r G3, echo= FALSE}
 
 house <- house %>%
   mutate(                  
@@ -334,4 +303,98 @@ ggplot(prix_moyens, aes(x = jour, y = prix_moyen)) +
 
 
 ```
+
+
+```{r G4, echo= FALSE}
+#G4 ici
+
+```
+
+
+```{r G5, echo= FALSE}
+#G5 ici
+
+```
+
+
+```{r  D1, echo= FALSE}
+
+house_summary <- house %>%
+  group_by(bedrooms) %>%
+  summarize(count = n()) %>%
+  mutate(percentage = round((count / sum(count)) * 100, 1)) %>%
+  filter(percentage > 1)  
+
+
+d1 <- ggplot(house_summary, aes(x = factor(bedrooms), y = count)) +
+  geom_bar(stat = "identity", color = "gray30", width = 0.7) +
+  geom_text(aes(label = paste0(" (", percentage, "%)")), 
+            vjust = -0.5, size = 3.5, color = "black") + 
+  scale_colour_viridis_d() +
+  theme_minimal() +
+  labs(
+    title = "D1 : Nombre de maisons ayant X chambres",
+    x = "Nombre de chambres",
+    y = "Nombre de maisons",
+    fill = "Nombre de chambres"
+  ) +
+  theme(
+    plot.title = element_text(hjust = 0.5, size = 16, face = "bold"),
+    legend.position = "none"  
+  )
+
+
+print(d1)
+
+
+```
+
+```{r D2, echo= FALSE}
+
+house_grade_summary <- house %>%
+  group_by(grade) %>%
+  summarize(count = n()) %>%
+  mutate(percentage = round((count / sum(count)) * 100, 1))
+
+
+d2 <- ggplot(house_grade_summary, aes(x = factor(grade), y = count, fill = factor(grade))) +
+  geom_bar(stat = "identity", color = "black", width = 0.7)  +  
+  scale_fill_viridis_d(option = "D") +  
+  theme_minimal() +
+  labs(
+    title = "D2 : Nombre de maisons selon la qualité",
+    x = "Grade (Qualité de la construction)",
+    y = "Nombre de maisons",
+    fill = "Grade"
+  ) +
+  theme(
+    plot.title = element_text(hjust = 0.5, size = 16, face = "bold"),
+    axis.text.x = element_text( size = 12),
+    axis.text.y = element_text(size = 12),
+    legend.position = "none"  
+  )
+
+
+print(d2)
+
+
+```
+
+
+```{r D3, echo= FALSE}
+#D3 ici
+```
+
+
+```{r D4 , echo= FALSE}
+#D4 ici
+```
+
+
+```{r D5, echo= FALSE}
+#D5 ici
+```
+
+
+
 
