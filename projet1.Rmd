@@ -11,6 +11,8 @@ output: html_document
 library(tidyverse)
 library(ggplot2)
 library(DT)
+library(lubridate)
+library(knitr)
 
 ```
 
@@ -80,6 +82,22 @@ datatable(description_variables,
 
 ```
 
+## nettoyage de la base des données :
+
+```{r nettoyage}
+#sum(is.na(house))
+# on va aussi modifier la colonne date pour utiliser le format ymd
+
+if (!inherits(house$date, "Date")) {
+  house <- house %>%
+    mutate(
+      date = ymd(substr(date, 1, 8))  
+    )
+}
+
+head(house)
+```
+Nombre de valeurs manquantes : `r sum(is.na(house)) `.
 
 
 
@@ -187,3 +205,37 @@ Remarque : Dans le formulaire, le pris de la maison sera la dernière case à re
 * S'il clique sur acheter, le site se comporte exactement comme si il était dans le profil acheteur, à la seule différence qu'il reste connecté.
 
 *Il a aussi l'option paramètre où il pourra changer son mot de passe
+
+
+## Les graphiques :
+
+```{r G3}
+
+house <- house %>%
+  mutate(                  
+    jour = floor_date(date, unit = "day")  
+  )
+
+prix_moyens <- house %>%
+  group_by(jour) %>%
+  summarise(prix_moyen = mean(price)/1000) %>%
+  ungroup()
+
+prix_moyens$jour <- as.Date(prix_moyens$jour)
+
+
+ggplot(prix_moyens, aes(x = jour, y = prix_moyen)) +
+  geom_line(color = "skyblue", linewidth = 1) + 
+  labs(title = "G3 : Tendance des prix moyens dans le temps",
+       x = NULL,
+       y = "Prix moyen (en milliers de $)") +
+ theme_minimal() +
+  theme(
+    plot.title = element_text(hjust = 0.5, size = 16),
+    axis.text.x = element_text(angle = 60, hjust = 1) 
+  ) +
+  scale_x_date(date_breaks = "2 month", date_labels = "%b %Y")
+
+
+```
+
