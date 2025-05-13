@@ -120,15 +120,15 @@ Pour résumer, les graphiques de gauche ($G_i$) donnent une idée générale du 
 Il peut par exemple double cliquer sur la zone correspondante pour stopper l'effet dynamique, puis aller cliquer sur le graphe qui l'interesse pour le mettre en avant plan. pour revenir à l'effet dynamique, il doit double cliquer à nouveu n'importe où dans la grille.
 
 
-## Le menu rechercher :
+## La barre de recherche :
 
-si il connaît le code postal ou le nom du quartier, il peut simplement entrer les informations dans le menu rechercher  el les graphes se mettrons à jour automatiquent.
+Si il connaît le code postal ou le nom du quartier, il peut simplement entrer les informations dans le menu rechercher  et les graphes se mettrons à jour automatiquement.
 
 ## Les différents profils : 
 
 ### profil acheteur : 
 
-Si il clique dans le case correspondante, un menu deroulant se déploie. Les options sont : 
+Si il clique dans la case correspondante, un menu deroulant se déploie. Les options sont : 
 
 * localite : En choisissant localité, on lui déroule une liste des localités disponibles. il lui suffira alors de cliquer dessus et il sera redirrigé vers une nouvelle page contenant uniquement les propriétés dans cette localité.
 
