@@ -26,6 +26,30 @@ house <- read.csv("data/kc_house_data.csv")
 
 ```
 
+## Analyse du besoin Utilisateur
+
+L’immobilier est un secteur qui touche toutes les couches de la population. Que l’on soit locataire ou propriétaire, on est toujours amené à faire un choix concernant l’endroit où l’on souhaite habiter. Plusieurs facteurs peuvent influencer ce choix : nos goûts, nos attentes, celles des membres de notre famille, la taille de notre ménage ainsi que nos moyens financiers.
+
+Notre travail s’est basé sur un ensemble de données provenant du comté de King, dans l’État de Washington, aux États-Unis. Toutefois, cette analyse pourrait être généralisée à n’importe quelle région du monde, à condition de disposer de données comparables.
+
+## Objectifs : 
+
+Le but de notre travail est :
+
+* D’analyser les différents paramètres influençant les prix de l’immobilier et les préférences des acheteurs ou locataires ;
+
+* De faire ressortir les éléments visuels clés à travers des graphiques et tableaux interactifs ;
+
+* De rendre ces analyses accessibles via un site web convivial, afin d’aider les usagers dans leur prise de décision immobilière ;
+
+* Proposer des recommandations personnalisées (ex. : maisons correspondant à un profil donné) ; 
+
+* Prévoir l’évolution du marché à partir de données temporelles ;
+
+* Intégrer une carte interactive montrant la localisation des maisons en fonction des critères (vue, condition, prix, etc.); 
+
+* Simuler un budget : un outil qui permettrait à un usager de voir quelles options s’offrent à lui selon ses revenus.
+
 ## Description des données
 
 Le jeu de données contient les prix de ventes des maisons dans une compté de la ville de Seattle aux USA. ces maisons ont été vendues entre mai 2014 et mai 2015.
