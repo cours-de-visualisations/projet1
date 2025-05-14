@@ -13,6 +13,8 @@ library(ggplot2)
 library(DT)
 library(lubridate)
 library(knitr)
+library(kableExtra)
+
 
 ```
 
@@ -275,7 +277,7 @@ print(g2)
 
 
 ```{r G3, echo= FALSE}
-
+library(plotly)
 house <- house %>%
   mutate(                  
     jour = floor_date(date, unit = "day")  
@@ -289,7 +291,7 @@ prix_moyens <- house %>%
 prix_moyens$jour <- as.Date(prix_moyens$jour)
 
 
-ggplot(prix_moyens, aes(x = jour, y = prix_moyen)) +
+g3 <- ggplot(prix_moyens, aes(x = jour, y = prix_moyen)) +
   geom_line(color = "skyblue", linewidth = 1) + 
   labs(title = "G3 : Tendance des prix moyens dans le temps",
        x = NULL,
@@ -301,14 +303,44 @@ ggplot(prix_moyens, aes(x = jour, y = prix_moyen)) +
   ) +
   scale_x_date(date_breaks = "2 month", date_labels = "%b %Y")
 
-
+ggplotly(g3)
 ```
 
 
 ```{r G4, echo= FALSE}
-#G4 ici
+library(plotly)
+house_number <- house %>%
+  group_by(bedrooms) %>%
+  summarise(nomber_of_house = n()) %>%
+  arrange(bedrooms)
+
+#kable(house_number, caption = "Distribution du nombre de maisons par nombre de chambres") %>%
+#  kable_styling(
+#    bootstrap_options = c("striped", "hover", "condensed"),
+#    position = "left",
+#    full_width = TRUE,
+#    font_size = 12)
+
+g4 <- ggplot(house, aes(x = factor(bedrooms))) +
+  geom_bar(fill = "skyblue", color = "black") +
+  labs(
+    title = "G4: Distribution du nombre de chambres",
+    x = "Nombre de chambres",
+    y = "Nombre de maisons"
+  ) +
+  theme_minimal()+
+   theme(
+    plot.title = element_text(hjust = 0.5, size = 16),
+    axis.text.x = element_text( hjust = 1) 
+  )
+
+ggplotly(g4, tooltip = c("count"))
+
+
 
 ```
+
+
 
 
 ```{r G5, echo= FALSE}
@@ -350,7 +382,7 @@ print(d1)
 ```
 
 ```{r D2, echo= FALSE}
-
+library(plotly)
 house_grade_summary <- house %>%
   group_by(grade) %>%
   summarize(count = n()) %>%
@@ -375,19 +407,67 @@ d2 <- ggplot(house_grade_summary, aes(x = factor(grade), y = count, fill = facto
   )
 
 
-print(d2)
+ggplotly(d2, tooltip = c("count"))
 
 
 ```
 
 
 ```{r D3, echo= FALSE}
-#D3 ici
+house_waterfront <- house %>%
+  group_by(waterfront) %>%
+  summarize(count = n()) %>%
+  mutate(percentage = round((count / sum(count)) * 100, 1))
+
+#d3 <- ggplot(house, aes(x = "", fill = factor(waterfront))) +
+d3 <-  ggplot(house_waterfront, aes(x = factor(waterfront), y = count, fill = factor(waterfront))) +  
+  geom_bar(width = 0.7, stat = "identity", color = "black" ) +  
+  coord_polar(theta = "y") + 
+  scale_fill_viridis_d(option = "D") + 
+  labs(
+    title = "D3: Répartition des maisons avec ou sans vue sur l'eau",
+    fill = "Vue sur l'eau (0 = Non, 1 = Oui)"
+  ) +
+  theme_minimal() +
+  theme(
+    #axis.text.x = element_blank(), 
+    axis.text.x = element_text( size = 12),
+    #axis.ticks = element_blank(),  
+    plot.title = element_text(hjust = 0.5, size = 16, face = "bold"),
+    legend.position = "right"    
+  )
+
+d3
+#ggplotly(d3,tooltip = c("count"))
 ```
 
 
 ```{r D4 , echo= FALSE}
-#D4 ici
+library(plotly)
+house_condition <- house %>%
+  group_by(condition) %>%
+  summarize(count = n()) %>%
+  mutate(percentage = round((count / sum(count)) * 100, 1)) 
+
+
+d4 <- ggplot(house_condition, aes(x = factor(condition), y = count)) +
+  geom_bar(stat = "identity", color = "gray30", width = 0.7) +
+  geom_text(aes(label = paste0(" (", percentage, "%)")), 
+            vjust = -0.5, size = 3.5, color = "black") + 
+  scale_colour_viridis_d() +
+  theme_minimal() +
+  labs(
+    title = "D4 : Nombre de maison selon l'état  general (condition)",
+    x = "condition",
+    y = "Nombre de maisons",
+    fill = "Nombre de chambres"
+  ) +
+  theme(
+    plot.title = element_text(hjust = 0.5, size = 16, face = "bold"),
+    legend.position = "none"  
+  )
+
+d4
 ```
 
 
