@@ -7,20 +7,22 @@ output: html_document
 
 
 ```{r importation-librairies, echo=FALSE, include=FALSE}
-##install.packages("DT")
+#install.packages("DT")
+#install.packages("kableExtra")
+#install.packages("plotly")
 library(tidyverse)
 library(ggplot2)
 library(DT)
 library(lubridate)
 library(knitr)
 library(kableExtra)
+library(plotly)
 
 
 ```
 
 ```{r  importation-base-donnee,echo=FALSE}
 house <- read.csv("data/kc_house_data.csv")
-head(house)
 
 ```
 
@@ -95,15 +97,16 @@ if (!inherits(house$date, "Date")) {
     )
 }
 
-head(house)
+head(house)%>%
+  kable()
 ```
-Nombre de valeurs manquantes : `r sum(is.na(house)) `.
+**Nombre de valeurs manquantes : `r sum(is.na(house)) `**
 
 
 
 ## Description du site
 
-Initialement, le visiteur est sur la page d’acceuil présentée précédament, Il a la possibilité de choisir son profil : **acheteur**, **Propriétaire** ou **agent immobilier**.
+Initialement, le visiteur est sur la page d’acceuil présentée précédament, Il a la possibilité de choisir son profil : **acheteur** ou  **Propriétaire**.
 
 S'il fait le choix de rester en mode visite (il ne choisit aucun profil), alors, il a la possibilité de naviguer à travers la carte du Compté. La carte quant à elle, est divisée en plusieurs zones géographiques (le nombre de régions n'est pas encore déterminé) séparés par des grilles. 
 
@@ -152,7 +155,7 @@ Si il clique dans la case correspondante, un menu deroulant se déploie. Les opt
 
 il pourra cliquer sur la propriété qui l'interesse pour voir le contenu (photos,prix,... )
 
-* Tranches des prix : Si il clique dessus, un autre menu déroulant contenant les différentes tranche des prix (tranches de 25000$) apparaît. Il lui suffira de cliquer dessus pour être redirigé vers la page correspondant aux propriétés désirées
+* Tranches des prix : Si il clique dessus, un  menu déroulant contenant les différentes tranches des prix (tranches de 25000$) apparaît. Il lui suffira faire un choix  pour être redirigé vers la page correspondant aux propriétés désirées
 
 * Année de Construction --> idème
 
@@ -178,10 +181,10 @@ il pourra cliquer sur la propriété qui l'interesse pour voir le contenu (photo
  
  * 	Année de rénovation
 
-Notons aussi qu'il peut faire sa recherche en rajoutant des filtres.
+**Notons aussi qu'il peut faire sa recherche en rajoutant des filtres.**
 
 
-Pour terminer, une fois qu'il a été redirigé sur une page, il pourra toujours retourner vers le site en cliquant sur retour
+finalement, une fois qu'il a été redirigé sur une page, il pourra toujours retourner vers le site en cliquant sur retour ou en appuyant la touche echap du clavier.
 
 
 ### profil Propriétaire (ou vendeur, pas encore décidé) :
@@ -195,16 +198,15 @@ Si il clique dessus, le menu deroulant s'affiche
 
 Le site a exactement le même fonctionnement  que pour le profil visiteur, sauf qu'en plus, il peut choisir de : 
 
-* Publier une annonce : il devra alors rentrer les caractéristiques de sa maison en remplissant un formulaire. le formulaire est simple, on lui donne la liste des variables, et il doit compléter.  En plus il a la possibilité de 
-télécharger quelques photos de sa propriété.
+* Publier une annonce : il devra alors rentrer les caractéristiques de sa maison en remplissant un formulaire. le formulaire est simple ; on lui donne la liste des variables, et il doit compléter. À la fin, il a la possibilité de télécharger quelques photos de sa propriété s'il le souhaite.
 
-Remarque : Dans le formulaire, le pris de la maison sera la dernière case à remplir. On souhaite qu'il entre toutes les informations d'abord ; à partir des informations, on va prédire le prix de sa propriété, qu'il pourra alors accepter ou refuser.
+Remarque : Dans le formulaire, le pris de la maison sera la dernière case à remplir. On souhaite qu'il entre toutes les informations d'abord ; à partir de ces informations, on va faire une estimation (prédiction) du prix de sa propriété, il pourra alors s'en inspirer pour fixer son prix.
 
 * S'il clique sur Historique de mes ventes, on lui affiche la liste des annonces qu'il a déjà faites. il pourra alors consulter chaque annonce en tant que acheteur (pas le droit de modifier).
 
 * S'il clique sur acheter, le site se comporte exactement comme si il était dans le profil acheteur, à la seule différence qu'il reste connecté.
 
-*Il a aussi l'option paramètre où il pourra changer son mot de passe
+* Il a aussi l'option paramètre où il pourra changer son mot de passe...
 
 
 ## Les graphiques :
@@ -212,7 +214,7 @@ Remarque : Dans le formulaire, le pris de la maison sera la dernière case à re
 
 
 
-```{r G1, echo= FALSE}
+```{r G1, echo= FALSE, warning=FALSE}
 
 g1 <- ggplot(house, aes(x = price/1000)) +
   geom_histogram(fill = "skyblue", color = "black", bins = 50) +
@@ -236,7 +238,7 @@ print(g1)
 
 
 
-```{r G2, echo= FALSE}
+```{r G2, echo= FALSE, warning=FALSE}
 
 g2 <- ggplot(house, aes(x = sqft_living, y = price / 1000, color = factor(view))) +
   geom_jitter(alpha = 0.5) +
@@ -277,7 +279,6 @@ print(g2)
 
 
 ```{r G3, echo= FALSE}
-library(plotly)
 house <- house %>%
   mutate(                  
     jour = floor_date(date, unit = "day")  
@@ -308,7 +309,6 @@ ggplotly(g3)
 
 
 ```{r G4, echo= FALSE}
-library(plotly)
 house_number <- house %>%
   group_by(bedrooms) %>%
   summarise(nomber_of_house = n()) %>%
@@ -330,23 +330,15 @@ g4 <- ggplot(house, aes(x = factor(bedrooms))) +
   ) +
   theme_minimal()+
    theme(
-    plot.title = element_text(hjust = 0.5, size = 16),
+    plot.title = element_text(hjust = 0.5, size = 16, face = "bold"),
     axis.text.x = element_text( hjust = 1) 
   )
 
 ggplotly(g4, tooltip = c("count"))
 
 
-
 ```
 
-
-
-
-```{r G5, echo= FALSE}
-#G5 ici
-
-```
 
 
 ```{r  D1, echo= FALSE}
@@ -382,7 +374,6 @@ print(d1)
 ```
 
 ```{r D2, echo= FALSE}
-library(plotly)
 house_grade_summary <- house %>%
   group_by(grade) %>%
   summarize(count = n()) %>%
@@ -419,31 +410,32 @@ house_waterfront <- house %>%
   summarize(count = n()) %>%
   mutate(percentage = round((count / sum(count)) * 100, 1))
 
-#d3 <- ggplot(house, aes(x = "", fill = factor(waterfront))) +
-d3 <-  ggplot(house_waterfront, aes(x = factor(waterfront), y = count, fill = factor(waterfront))) +  
-  geom_bar(width = 0.7, stat = "identity", color = "black" ) +  
+d3 <- ggplot(house_waterfront, aes(x = "", y = count, fill = factor(waterfront))) +  
+  geom_bar(stat = "identity") +  
   coord_polar(theta = "y") + 
-  scale_fill_viridis_d(option = "D") + 
+  scale_fill_manual(
+    values = c("0" = "gray", "1" = "royalblue"),
+    labels = c("0" = "non", "1" = "oui")
+  ) + 
   labs(
-    title = "D3: Répartition des maisons avec ou sans vue sur l'eau",
-    fill = "Vue sur l'eau (0 = Non, 1 = Oui)"
+    title = "D3 : Vue sur l'eau",
+    x = NULL,
+    y = NULL,
+    fill = NULL
   ) +
   theme_minimal() +
   theme(
-    #axis.text.x = element_blank(), 
-    axis.text.x = element_text( size = 12),
-    #axis.ticks = element_blank(),  
+    axis.text.x = element_blank(), 
     plot.title = element_text(hjust = 0.5, size = 16, face = "bold"),
-    legend.position = "right"    
+    legend.position = "right"
   )
 
 d3
-#ggplotly(d3,tooltip = c("count"))
 ```
 
 
 ```{r D4 , echo= FALSE}
-library(plotly)
+
 house_condition <- house %>%
   group_by(condition) %>%
   summarize(count = n()) %>%
@@ -457,23 +449,20 @@ d4 <- ggplot(house_condition, aes(x = factor(condition), y = count)) +
   scale_colour_viridis_d() +
   theme_minimal() +
   labs(
-    title = "D4 : Nombre de maison selon l'état  general (condition)",
-    x = "condition",
+    title = "D4 : Etat général des maisons",
+    x = NULL,
     y = "Nombre de maisons",
-    fill = "Nombre de chambres"
   ) +
   theme(
     plot.title = element_text(hjust = 0.5, size = 16, face = "bold"),
     legend.position = "none"  
-  )
+  )+
+  scale_x_discrete(labels=c("mauvaise", "acceptable", "bonne", "très bonne", "excellente"))
 
 d4
 ```
 
 
-```{r D5, echo= FALSE}
-#D5 ici
-```
 
 
 
