@@ -3,6 +3,7 @@ title: "projet"
 author: "groupe 5 (Wilson FOTSING, Laurent Fabrice NGWE, Gladisse Diane KOUMBO)"
 date: "`r Sys.Date()`"
 output: html_document
+
 ---
 
 
@@ -17,7 +18,6 @@ library(lubridate)
 library(knitr)
 library(kableExtra)
 library(plotly)
-
 
 ```
 
@@ -462,8 +462,31 @@ d4 <- ggplot(house_condition, aes(x = factor(condition), y = count)) +
 d4
 ```
 
+##  Le site
+
+### Logo
+
+<p align="center">
+  <img src="logo.png">
+</p>
 
 
+### page d'acceuil
 
+<p align="center">  
+  <img src="page_acceuil.png" >
+</p>
+
+### profil propitaire
+
+<p align="center">  
+  <img src="profil_proprietaire.png">
+</p>
+
+### Un apperçu 
+
+<p align="center">  
+  <img src="le_site.png">
+</p>
 
 
