@@ -488,8 +488,27 @@ d4
 
 ```{r map}
 
-library(leaflet)
-leaflet(house) %>% addTiles() %>% addCircleMarkers(~long, ~lat,radius = 5,opacity = 0.1, popup = ~as.character(price))
+#library(leaflet)
+#leaflet(house) %>% addTiles() %>% addCircleMarkers(~long, ~lat,radius = 5,opacity = 0.001, popup = ~as.character(price))
+
+
+milieu.lat = (max(house$lat)+min(house$lat))/2
+milieu.long = (max(house$lat)-min(house$lat))/2
+max.long = max(house$long)
+min.long = min(house$long)
+
+
+sud.ouest <-  house %>%
+  filter((min(house$lat)<house$lat | house$long<milieu.lat) & (min(house$long)<house$long | house$long<milieu.long))
+
+sud.est <-  house %>%
+  filter((min(house$lat)<house$lat | house$long<milieu.lat) & (milieu.long<house$long | house$long<max(house$long)))
+
+nord.est <- house %>%
+  filter((milieu.lat<house$lat | house$lat<max(house$lat)) & (milieu.long<house$long | house$long<max(house$long)))
+
+nord.ouest <- house %>%
+  filter(((milieu.lat<house$lat | house$lat<max(house$lat)) & (min.long<house$long | house$long<milieu.long)))
 
 ```
 
