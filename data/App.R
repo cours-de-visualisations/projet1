@@ -1,12 +1,20 @@
+library(shiny)
+library(tidyverse)
+library(DT)
+library(stringr)
+library(tools)
+
+load("data/houses.Rdata")
+
 ---
-title: "Application"
+  title: "Application"
 author: "Groupe 5"
 date: "`r Sys.Date()`"
 output: html_document
 runtime: shiny
 ---
 
-```{r setup}
+  
 library(shiny)
 library(tidyverse)
 library(DT)
@@ -14,7 +22,7 @@ library(stringr)
 library(tools)
 
 # Chargement des données
-load("data/kc_house_data.RData")
+load("data/house.RData")
 
 ui <- fluidPage(
   titlePanel("Gestion immobilière"),
@@ -58,3 +66,4 @@ server <- function(input, output) {
 }
 
 shinyApp(ui = ui, server = server)
+
