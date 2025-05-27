@@ -6,13 +6,28 @@ output: html_document
 runtime: shiny
 ---
 
+library(shiny)
+library(tidyverse)
+library(DT)
+library(stringr)
+library(tools)
+
+```{r}
+
+house <- read.csv("data/kc_house_data.csv")
+
+save(house, file = "data/kc_house_data.RData")
+
+```
+
+
+load("house.RData")
+
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
-This R Markdown document is made interactive using Shiny. Unlike the more traditional workflow of creating static reports, you can now create documents that allow your readers to change the assumptions underlying your analysis and see the results immediately. 
 
-To learn more, see [Interactive Documents](http://rmarkdown.rstudio.com/authoring_shiny.html).
 
 ## Inputs and Outputs
 
