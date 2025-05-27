@@ -486,6 +486,15 @@ d4 <- ggplot(house_condition, aes(x = factor(condition), y = count)) +
 d4
 ```
 
+```{r map}
+
+library(leaflet)
+leaflet(house) %>% addTiles() %>% addCircleMarkers(~long, ~lat,radius = 5,opacity = 0.1, popup = ~as.character(price))
+
+```
+
+
+
 ##  Le site
 
 ### Logo
