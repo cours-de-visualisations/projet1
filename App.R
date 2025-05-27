@@ -1,12 +1,3 @@
----
-title: "Application"
-author: "Groupe 5"
-date: "`r Sys.Date()`"
-output: html_document
-runtime: shiny
----
-
-```{r setup}
 library(shiny)
 library(tidyverse)
 library(DT)
@@ -14,7 +5,7 @@ library(stringr)
 library(tools)
 
 # Chargement des données
-load("data/kc_house_data.RData")
+load("data/kc_house_data.RData")  # Assure-toi que ce fichier contient un objet nommé `house`
 
 ui <- fluidPage(
   titlePanel("Gestion immobilière"),
@@ -22,19 +13,21 @@ ui <- fluidPage(
   sidebarLayout(
     sidebarPanel(
       selectInput("y", "Y-axis:", 
-                  choices = c("price", "bedrooms", "bathrooms", "sqft_living", "sqft_lot", "floors", "sqft_above", "lat", "long"), 
+                  choices = c("price", "bedrooms", "bathrooms", "sqft_living", 
+                              "sqft_lot", "floors", "sqft_above", "lat", "long"), 
                   selected = "price"),
       
       selectInput("x", "X-axis:", 
-                  choices = c("price", "bedrooms", "bathrooms", "sqft_living", "sqft_lot", "floors", "sqft_above", "lat", "long"), 
+                  choices = c("price", "bedrooms", "bathrooms", "sqft_living", 
+                              "sqft_lot", "floors", "sqft_above", "lat", "long"), 
                   selected = "bedrooms"),
       
       selectInput("z", "Color by:", 
-                  choices = c("price", "bedrooms", "bathrooms", "sqft_living", "sqft_lot", "floors", "sqft_above", "lat", "long"), 
+                  choices = c("price", "bedrooms", "bathrooms", "sqft_living", 
+                              "sqft_lot", "floors", "sqft_above", "lat", "long"), 
                   selected = "floors"),
       
       sliderInput("alpha", "Alpha:", min = 0, max = 1, value = 0.5),
-      
       sliderInput("size", "Size:", min = 0, max = 5, value = 2)
     ),
     
