@@ -496,21 +496,56 @@ milieu.lat = (max(house$lat)+min(house$lat))/2
 milieu.long = (max(house$lat)-min(house$lat))/2
 max.long = max(house$long)
 min.long = min(house$long)
-
+max.lat = max(house$lat)
+min.lat = min(house$lat)
 
 sud.ouest <-  house %>%
-  filter((min(house$lat)<house$lat | house$long<milieu.lat) & (min(house$long)<house$long | house$long<milieu.long))
+  filter((min.lat<house$lat & house$long<milieu.lat) & (min.long<house$long & house$long<milieu.long))
 
 sud.est <-  house %>%
-  filter((min(house$lat)<house$lat | house$long<milieu.lat) & (milieu.long<house$long | house$long<max(house$long)))
+  filter((min.lat<house$lat & house$long<milieu.lat) & (milieu.long<house$long & house$long<max.long))
 
 nord.est <- house %>%
-  filter((milieu.lat<house$lat | house$lat<max(house$lat)) & (milieu.long<house$long | house$long<max(house$long)))
+  filter((milieu.lat<house$lat & house$lat<max.lat) & (milieu.long<house$long & house$long<max.long))
 
 nord.ouest <- house %>%
-  filter(((milieu.lat<house$lat | house$lat<max(house$lat)) & (min.long<house$long | house$long<milieu.long)))
+  filter(((milieu.lat<house$lat | house$lat<max.lat) & (min.long<house$long | house$long<milieu.long)))
 
 ```
+
+
+```{r cluster découpage zones géographiques}
+# Autre approche de présentation des différentes zones géographiques.
+
+library(dplyr)
+library(ggplot2)
+
+
+#  Appliquons un clustering k-means pour définir 10 zones
+set.seed(123)  # pour la reproductibilité
+kmeans_result <- kmeans(house[, c("long", "lat")], centers = 10)
+
+# Ajoutons les labels de zones au jeu de données
+house_clean$zone <- as.factor(kmeans_result$cluster)
+
+# Visualisons les zones
+p <- ggplot(house_clean, aes(x = long, y = lat, color = zone), text = paste("Zone:", zone)) +
+  geom_point(alpha = 0.6) +
+  expand_limits(x=seq(-123,-121, by=0.25))+
+  #expand_limits(y=47, 0.2)+
+  labs(
+    title = "Répartition des maisons par zone géographique (10 clusters)",
+    x = "Longitude",
+    y = "Latitude",
+    color = "Zone"
+  ) +
+  theme_minimal()
+
+# Rendons le graphique interactif avec Plotly
+ggplotly(p, tooltip = "text")
+
+```
+
 
 
 
