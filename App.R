@@ -4,6 +4,7 @@ library(DT)
 library(lubridate)
 library(stringr)
 library(tools)
+library(leaflet)
 library(shinythemes)
 
 
@@ -79,30 +80,34 @@ ui <- fluidPage(
       checkboxGroupInput(inputId = "Localité", 
                          label = "Localité",
                          choices = c("Nord Ouest", "Nord Est", "Sud Ouest", "Sud Est"),
-                         selected = "Nord Ouest"),
-      
-      
-      selectInput("x", "Variable explicative :", 
-                  choices = c("Nombre de chambres" = "bedrooms",
-                              "Nombre de salles de bain" = "bathrooms",
-                              "Surface habitable" = "sqft_living",
-                              "Taille du terrain" = "sqft_lot",
-                              "Surface au-dessus du sol" = "sqft_above"),
-                  selected = "bedrooms"),
-      
-      selectInput("graphiques","graphiques",
-                  choices =  c("distributionPrix", "nuagePoints", "nombre_chambre_par_maison",
-                               "grade_maison", "vue_sur_eau", "etat_maison", "tendancePrix")),
-      
-      sliderInput("alpha", "Alpha (transparence) :", min = 0, max = 1, value = 0.5),
-    
+                         selected = "Nord Ouest")
+  
     ),
     
+    
     mainPanel(
+########################################################### Les graphiques
       tabsetPanel(type = "tabs",
                   tabPanel("Graphiques",
+                           selectInput("graphiques","graphiques",
+                                       choices =  c("distribution des prix" = "distributionPrix",
+                                                    "nuage des points"="nuagePoints",
+                                                    "nombre de chambre par maison"="nombre_chambre_par_maison",
+                                                    "grade maison"="grade_maison", 
+                                                    "vue sur l'eau"="vue_sur_eau", 
+                                                    "Etat des maisons"="etat_maison",
+                                                    "tendance des prix"="tendancePrix")),
                            conditionalPanel("input.graphiques == 'distributionPrix'", plotOutput("distributionPrix")),
-                           conditionalPanel("input.graphiques == 'nuagePoints'", plotOutput("nuagePoints")),
+                           conditionalPanel("input.graphiques == 'nuagePoints'", plotOutput("nuagePoints"),
+                                            selectInput("x", "Variable explicative :", 
+                                                        choices = c("Nombre de chambres" = "bedrooms",
+                                                                    "Nombre de salles de bain" = "bathrooms",
+                                                                    "Surface habitable" = "sqft_living",
+                                                                    "Taille du terrain" = "sqft_lot",
+                                                                    "Surface au dessus du sol" = "sqft_above"),
+                                                        selected = "sqft_living"),
+                                            sliderInput("alpha", "Alpha (transparence) :", min = 0, max = 1, value = 0.5)),
+                           
                            conditionalPanel("input.graphiques == 'nombre_chambre_par_maison'", plotOutput("nombre_chambre_par_maison")),
                            conditionalPanel("input.graphiques == 'grade_maison'", plotOutput("grade_maison")),
                            conditionalPanel("input.graphiques == 'vue_sur_eau'", plotOutput("vue_sur_eau")),
@@ -110,21 +115,43 @@ ui <- fluidPage(
                            conditionalPanel("input.graphiques == 'tendancePrix'", plotOutput("tendancePrix"))
                   ),
                   
-                  tabPanel("Statistiques globales", h3(tags$b("nombre de maisons par secteur")),tableOutput("tableau_secteurs")),               
-                  tabPanel("Tabeaux", DT::dataTableOutput("data")),               
+                  
+ ############################################################# Les resumés                  
+                  
+                  tabPanel("Statistiques globales ",
+                           h3(tags$b("Statistiques par régions")),tableOutput("tableau_secteurs"), br(),
+                           h3(tags$b("Évolution des prix dans le temps")), plotOutput("tendance_globales_Prix")
+                           ), 
+ 
+                 tabPanel("Carte et données",
+                          leafletOutput("carte", height = 500),
+                           br(),
+                          ),  
+ 
                   tabPanel("Références",
                            br(),
-                           p("Voici une brève description des variables principales :"),
+                           
+                           
+                           h4(tags$b("À propos des données")),
+                           p("Notre travail s’est basé sur un ensemble de données provenant du comté de King, 
+                             dans l’État de Washington, aux États-Unis. Toutefois, 
+                             cette analyse pourrait être généralisée à n’importe quelle région du monde. Tant 
+                             qu'on a tous les éléments necessaires"), 
+                           br(),
+                           
+                           tags$a("Les données ont été extraites ici ",
+                                  href = "https://www.kaggle.com/datasets/harlfoxem/housesalesprediction"), "👈",
+                           br(), br(),
+                           
+                           h4(tags$b("brève description des variables manipulées :")),
+                           
+                
                            tags$ul(
-                             tags$li(tags$b("price"), ": prix de vente de la maison"),
-                             tags$li(tags$b("bedrooms"), ": nombre de chambres"),
-                             tags$li(tags$b("bathrooms"), ": nombre de salles de bain"),
-                             tags$li(tags$b("sqft_living"), ": surface habitable (en pieds carrés)"),
-                             tags$li(tags$b("sqft_lot"), ": taille du terrain (en pieds carrés)"),
-                             tags$li(tags$b("floors"), ": nombre d'étages"),
-                             tags$li(tags$b("sqft_above"), ": surface au-dessus du sol"),
-                             tags$li(tags$b("lat"), ": latitude"),
-                             tags$li(tags$b("long"), ": longitude")
+                             tags$li(tags$b("prix"), ": prix de vente de la maison"),
+                             tags$li(tags$b("nombre de chambres"), ": nombre de chambres dans une maison mise en vente"),
+                             tags$li(tags$b("nombre de salles de bain"), ": nombre de salles de bain dans une maison mise en vete"),
+                             tags$li(tags$b("surface habitable"), ": surface habitable (en pieds carrés)"),
+                             tags$li(tags$b("taille du terrain"), ": taille du terrain (en pieds carrés)"),
                            )
                   )
       ),
@@ -344,17 +371,17 @@ output$etat_maison <- renderPlot({
   
 })
 
-################################################# resumé ##########################################
+################################################# resumé et statistiques globales ##########################################
 ######################################### Nombre de maisons par secteur
 nombre_maisons_par_secteur <- reactive({
   house %>%
     group_by(region) %>%
-    summarise(nombre_de_maisons = n(),
-              prix_moyen = round(mean(price), 2),
-              prix_median = round(median(price), 2),
-              prix_min = min(price),
-              prix_max = max(price),
-              surface_moyenne = round(mean(sqft_living), 2)) %>%
+    summarise("nombre de maisons" = n(),
+              "prix moyen" = round(mean(price), 2),
+              "prix median" = round(median(price), 2),
+              "prix min" = min(price),
+              "prix max" = max(price),
+              "surface moyenne" = round(mean(sqft_living), 2)) %>%
     arrange(region)
 })
 
@@ -362,16 +389,44 @@ output$tableau_secteurs <- renderTable({
   nombre_maisons_par_secteur()
 })
 
-  
-##############################################################################################
+####################################### Tendance globale des prix
+calcul_tendances_globales <- house %>%
+    mutate(jour = floor_date(date, unit = "day")) %>%
+    group_by(jour) %>%
+    summarise(prix_moyen = mean(price) / 1000) %>%
+    ungroup()
 
-  output$summary <- renderTable({
-    summary(secteur())
-  })
+output$tendance_globales_Prix <- renderPlot({
+  ggplot(calcul_tendances_globales, aes(x = jour, y = prix_moyen)) +
+    geom_line(color = "skyblue", linewidth = 1) + 
+    labs(title = NULL,
+         x = NULL,
+         y = "Prix moyen (en milliers de $)") +
+    theme_minimal() +
+    theme(
+      plot.title = element_text(hjust = 0.5, size = 16,face = "bold"),
+      axis.text.x = element_text(angle = 60, hjust = 1) 
+    ) +
+    scale_x_date(date_breaks = "2 month", date_labels = "%b %Y")
+})
+
   
-  output$data <- renderDataTable({
-    datatable(secteur(), options = list(pageLength = 10))
-  })
+################################################################ visualisation sur la carte ##############################
+################################################################ 
+
+output$carte <- renderLeaflet({
+  leaflet(secteur()) %>%
+    addTiles() %>%
+    addCircleMarkers(
+      lng = ~long,
+      lat = ~lat,
+      popup = ~paste("Prix :", price, "USD"),
+      color = "blue",
+      radius = 0.0001
+    )
+})
+
+
 }
 
 shinyApp(ui = ui, server = server)

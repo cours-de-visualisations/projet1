@@ -11,6 +11,7 @@ output: html_document
 #install.packages("DT")
 #install.packages("kableExtra")
 #install.packages("plotly")
+#install.packages("leaflet")
 library(tidyverse)
 library(ggplot2)
 library(DT)
@@ -18,6 +19,7 @@ library(lubridate)
 library(knitr)
 library(kableExtra)
 library(plotly)
+library(leaflet)
 
 ```
 
@@ -578,5 +580,6 @@ table(house$region)
 <p align="center">  
   <img src="le_site.png">
 </p>
+
 
 
