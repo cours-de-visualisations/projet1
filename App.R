@@ -32,9 +32,9 @@ ui <- fluidPage(
   
   theme = shinytheme("cerulean"),
  #### j'ajoute une image en arrière plan 
- #### Pour ajouter l'arriere plan, on s'est fait aider par ChatGpt
+
  tags$head(
-   tags$style(HTML("
+   tags$style("
     body {
       background-image: url('logo1.png');
       background-size: cover;
@@ -44,23 +44,14 @@ ui <- fluidPage(
       position: relative;
     }
     
-    body::before {
-      content: '';
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      background-color: rgba(0, 0, 0, 0.4); /* assombrit le fond */
-      z-index: -1;
-    }
-
-    .well, .tab-content, .dataTables_wrapper, .form-group {
+    .tab-content,  .form-group{
       background-color: rgba(255, 255, 255, 0.9);
       padding: 10px;
-      border-radius: 10px;
+      margin : 10px ;
+      border-radius: 20px;
     }
-  "))
+    
+  ")
  ),
   
   h1(tags$b("Gestion immobilière"), style = "text-align: center;color: white;"),
@@ -70,7 +61,7 @@ ui <- fluidPage(
     sidebarPanel(
       h4("Profil", style = "text-align: center;"),
       
-      div(style = "display: flex; gap: 10px; justify-content: center;",
+      div(style = "display: flex; gap: 10px; justify-content: center; ",
           actionButton("acheteur", "Acheteur"),
           actionButton("proprietaire", "Propriétaire")
       ),
@@ -89,14 +80,14 @@ ui <- fluidPage(
 ########################################################### Les graphiques
       tabsetPanel(type = "tabs",
                   tabPanel("Graphiques",
-                           selectInput("graphiques","graphiques",
+                           selectInput("graphiques","graphiques", 
                                        choices =  c("distribution des prix" = "distributionPrix",
                                                     "nuage des points"="nuagePoints",
                                                     "nombre de chambre par maison"="nombre_chambre_par_maison",
                                                     "grade maison"="grade_maison", 
                                                     "vue sur l'eau"="vue_sur_eau", 
                                                     "Etat des maisons"="etat_maison",
-                                                    "tendance des prix"="tendancePrix")),
+                                                    "tendance des prix"="tendancePrix")), br(),
                            conditionalPanel("input.graphiques == 'distributionPrix'", plotOutput("distributionPrix")),
                            conditionalPanel("input.graphiques == 'nuagePoints'", plotOutput("nuagePoints"),
                                             selectInput("x", "Variable explicative :", 
@@ -104,8 +95,9 @@ ui <- fluidPage(
                                                                     "Nombre de salles de bain" = "bathrooms",
                                                                     "Surface habitable" = "sqft_living",
                                                                     "Taille du terrain" = "sqft_lot",
-                                                                    "Surface au dessus du sol" = "sqft_above"),
-                                                        selected = "sqft_living"),
+                                                                    "Surface au dessus du sol" = "sqft_above"), 
+                                                        selected = "sqft_living"), 
+                                            
                                             sliderInput("alpha", "Alpha (transparence) :", min = 0, max = 1, value = 0.5)),
                            
                            conditionalPanel("input.graphiques == 'nombre_chambre_par_maison'", plotOutput("nombre_chambre_par_maison")),
@@ -123,7 +115,7 @@ ui <- fluidPage(
                            h3(tags$b("Évolution des prix dans le temps")), plotOutput("tendance_globales_Prix")
                            ), 
  
-                 tabPanel("Carte et données",
+                 tabPanel("Carte et données", br(), h5(("Zommer sur une zone, puis cliquer sur la  maison de votre choix pour afficher les détails")),
                           leafletOutput("carte", height = 500),
                            br(),
                           ),  
@@ -417,14 +409,19 @@ output$tendance_globales_Prix <- renderPlot({
 output$carte <- renderLeaflet({
   leaflet(secteur()) %>%
     addTiles() %>%
+    fitBounds(
+      lng1 = min(secteur()$long),
+      lat1 = min(secteur()$lat),
+      lng2 = max(secteur()$long),
+      lat2 = max(secteur()$lat)
+    ) %>%
     addCircleMarkers(
-      lng = ~long,
-      lat = ~lat,
       popup = ~paste("Prix :", price, "USD"),
       color = "blue",
-      radius = 0.0001
+      radius = 0.001
     )
 })
+
 
 
 }
