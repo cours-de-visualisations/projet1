@@ -30,43 +30,34 @@ house <- house %>%
 
 ui <- fluidPage(
   
-  theme = shinytheme("cerulean"),
+  theme = shinytheme("yeti"),
  #### j'ajoute une image en arrière plan 
 
  tags$head(
-   tags$style("
-    body {
-      background-image: url('logo1.png');
-      background-size: cover;
-      background-attachment: fixed;
-      background-position: center;
-      background-repeat: no-repeat;
-      position: relative;
-    }
-    
-    .tab-content,  .form-group{
-      background-color: rgba(255, 255, 255, 0.9);
-      padding: 10px;
-      margin : 10px ;
-      border-radius: 20px;
-    }
-    
-  ")
+   tags$style(("
+      body {
+        background-image: url('logo1.png');
+         background-size: cover;
+        #filter: contrast(70%) 
+      }
+      .tab-content, .form-group {
+        background-color: rgba(200, 200, 200);
+        padding: 20px;
+        margin: 20px;
+        border-radius: 20px;
+      }
+    "))
  ),
   
-  h1(tags$b("Gestion immobilière"), style = "text-align: center;color: white;"),
-  br(), br(),
+  h1(tags$b("Gestion des maisons mises en vente dans King Comty (USA)"), style = "text-align: center;color: white;"),
   
   sidebarLayout(
     sidebarPanel(
-      h4("Profil", style = "text-align: center;"),
+      h4(tags$b("selectionnez un Profil"), style = "text-align: center;"),
+      tabPanel("profil",selectInput("profil", " ", 
+                                    choices = c("Acheteur", "Vendeur","Visiteur"),
+                                    selected = "visiteur")),
       
-      div(style = "display: flex; gap: 10px; justify-content: center; ",
-          actionButton("acheteur", "Acheteur"),
-          actionButton("proprietaire", "Propriétaire")
-      ),
-      
-      br(), br(), br(),
       
       checkboxGroupInput(inputId = "Localité", 
                          label = "Localité",
@@ -80,13 +71,13 @@ ui <- fluidPage(
 ########################################################### Les graphiques
       tabsetPanel(type = "tabs",
                   tabPanel("Graphiques",
-                           selectInput("graphiques","graphiques", 
+                           selectInput("graphiques",tags$b("Que voulez vous visualisaliser ?"), 
                                        choices =  c("distribution des prix" = "distributionPrix",
                                                     "nuage des points"="nuagePoints",
                                                     "nombre de chambre par maison"="nombre_chambre_par_maison",
                                                     "grade maison"="grade_maison", 
                                                     "vue sur l'eau"="vue_sur_eau", 
-                                                    "Etat des maisons"="etat_maison",
+                                                    "état des maisons"="etat_maison",
                                                     "tendance des prix"="tendancePrix")), br(),
                            conditionalPanel("input.graphiques == 'distributionPrix'", plotOutput("distributionPrix")),
                            conditionalPanel("input.graphiques == 'nuagePoints'", plotOutput("nuagePoints"),
@@ -98,7 +89,8 @@ ui <- fluidPage(
                                                                     "Surface au dessus du sol" = "sqft_above"), 
                                                         selected = "sqft_living"), 
                                             
-                                            sliderInput("alpha", "Alpha (transparence) :", min = 0, max = 1, value = 0.5)),
+                                            sliderInput("alpha", "Alpha (transparence) :", min = 0, max = 1, value = 0.5)
+                                            ),
                            
                            conditionalPanel("input.graphiques == 'nombre_chambre_par_maison'", plotOutput("nombre_chambre_par_maison")),
                            conditionalPanel("input.graphiques == 'grade_maison'", plotOutput("grade_maison")),
@@ -115,14 +107,13 @@ ui <- fluidPage(
                            h3(tags$b("Évolution des prix dans le temps")), plotOutput("tendance_globales_Prix")
                            ), 
  
-                 tabPanel("Carte et données", br(), h5(("Zommer sur une zone, puis cliquer sur la  maison de votre choix pour afficher les détails")),
-                          leafletOutput("carte", height = 500),
-                           br(),
+                 tabPanel("Carte et données", h5(("Vous pouvez zommer, dezoomer, naviguer,
+                            puis cliquer sur la  maison de votre choix pour afficher les détails")),
+                          leafletOutput("carte"),
+                        
                           ),  
  
                   tabPanel("Références",
-                           br(),
-                           
                            
                            h4(tags$b("À propos des données")),
                            p("Notre travail s’est basé sur un ensemble de données provenant du comté de King, 
@@ -133,7 +124,7 @@ ui <- fluidPage(
                            
                            tags$a("Les données ont été extraites ici ",
                                   href = "https://www.kaggle.com/datasets/harlfoxem/housesalesprediction"), "👈",
-                           br(), br(),
+                           br(), 
                            
                            h4(tags$b("brève description des variables manipulées :")),
                            
@@ -148,7 +139,7 @@ ui <- fluidPage(
                   )
       ),
       br(),
-      div(style = "color: white; font-weight: bold;", textOutput("profil_selectionne"))
+      div(style = "color: white; font-weight: bold;", textOutput("profil_choisi"))
       
     )
   )
@@ -156,19 +147,10 @@ ui <- fluidPage(
 
 server <- function(input, output) {
   
-  profil <- reactiveVal("Aucun profil sélectionné ")
-  
-  observeEvent(input$acheteur, {
-    profil("Profil: Acheteur")
+  output$profil_choisi <- renderText({
+    paste("Vous etes en mode : ", input$profil)
   })
   
-  observeEvent(input$proprietaire, {
-    profil("Profil: Propriétaire")
-  })
-  
-  output$profil_selectionne <- renderText({
-    profil()
-  })
   
  
   
@@ -177,7 +159,7 @@ server <- function(input, output) {
     filter(house, region %in% input$Localité)
   })
   
-  ################################################# Les graphiques##########################################
+  ################################################# Les graphiques ##########################################
   
   ######################################## G1
   
@@ -185,7 +167,7 @@ server <- function(input, output) {
     ggplot(secteur(), aes(x = price / 1000)) +
       geom_histogram(fill = "skyblue", color = "black", bins = 50) +
       labs(
-        title = "G1 : Distribution des prix des maisons",
+        title = "Distribution des prix des maisons",
         x = "Prix (en milliers USD)",
         y = "Nombre de maisons"
       ) +
@@ -215,7 +197,7 @@ server <- function(input, output) {
       geom_smooth(method = "lm", se = FALSE, color = "red") +
       theme_minimal() +
       labs(
-        title = "G2 : répartition  des prix des maisons",
+        title = " Répartition  des prix des maisons",
         x = variables_francais[[input$x]],
         y = "Prix (en million USD)",
         color = "Vue"
@@ -245,7 +227,7 @@ server <- function(input, output) {
   output$tendancePrix <- renderPlot({
     ggplot(calcul_tendances(), aes(x = jour, y = prix_moyen)) +
       geom_line(color = "skyblue", linewidth = 1) + 
-      labs(title = "G3 : Tendance des prix moyens dans le temps",
+      labs(title = " Tendance des prix moyens dans le temps",
            x = NULL,
            y = "Prix moyen (en milliers de $)") +
       theme_minimal() +
@@ -268,7 +250,7 @@ server <- function(input, output) {
     ggplot(calcul_nombre_maison(), aes(x = factor(bedrooms), y = nombre_de_maisons)) +
       geom_col(fill = "skyblue", color = "black") +
       labs(
-        title = "G4 : Nombre de maisons par nombre de chambres",
+        title = "Nombre de maisons par nombre de chambres",
         x = "Nombre de chambres",
         y = "Nombre de maisons"
       ) +
@@ -294,7 +276,7 @@ server <- function(input, output) {
       scale_fill_viridis_d(option = "D") +  
       theme_minimal() +
       labs(
-        title = "D1 : Nombre de maisons selon la qualité",
+        title = "Nombre de maisons selon la qualité",
         x = "Grade (Qualité de la construction)",
         y = "Nombre de maisons",
         fill = "Grade"
@@ -323,7 +305,7 @@ output$vue_sur_eau <- renderPlot({
       labels = c("0" = "non", "1" = "oui")
     ) + 
     labs(
-      title = "D2 : Vue sur l'eau",
+      title = " Vue sur l'eau",
       x = NULL,
       y = NULL,
       fill = NULL
@@ -351,7 +333,7 @@ output$etat_maison <- renderPlot({
     scale_colour_viridis_d() +
     theme_minimal() +
     labs(
-      title = "D3 : Etat général des maisons",
+      title = "Etat général des maisons",
       x = NULL,
       y = "Nombre de maisons",
     ) +
@@ -405,6 +387,7 @@ output$tendance_globales_Prix <- renderPlot({
   
 ################################################################ visualisation sur la carte ##############################
 ################################################################ 
+#Pour ce bout de code, on s'est fait aider par ChatGPT
 
 output$carte <- renderLeaflet({
   leaflet(secteur()) %>%
@@ -414,11 +397,15 @@ output$carte <- renderLeaflet({
       lat1 = min(secteur()$lat),
       lng2 = max(secteur()$long),
       lat2 = max(secteur()$lat)
-    ) %>%
+    )%>%setView(
+      lng = mean(secteur()$long),
+      lat = mean(secteur()$lat),
+      zoom = 12
+    )%>%
     addCircleMarkers(
       popup = ~paste("Prix :", price, "USD"),
       color = "blue",
-      radius = 0.001
+      radius = 5
     )
 })
 
